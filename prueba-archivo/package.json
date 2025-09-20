@@ -24,8 +24,15 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
+    "@types/xlsx": "^0.0.36",
+    "fast-csv": "^5.0.5",
+    "i": "^0.3.7",
+    "multer": "^2.0.2",
+    "npm": "^11.6.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.27",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

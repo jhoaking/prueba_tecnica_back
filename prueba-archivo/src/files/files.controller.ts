@@ -1,34 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { BadRequestException, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FilesService } from './files.service';
-import { CreateFileDto } from './dto/create-file.dto';
-import { UpdateFileDto } from './dto/update-file.dto';
+import { diskStorage } from 'multer';
+import * as path from 'path';
+import { v4 as uuid } from 'uuid';
+import { excelFilter } from './helpers/file-filter.helper';
+
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
-  @Post()
-  create(@Body() createFileDto: CreateFileDto) {
-    return this.filesService.create(createFileDto);
-  }
+  @Post('import')
+  @UseInterceptors('file' , {
+    storage : diskStorage({
+      destination : '../../static/uploads',
+      filename : (req,file,cb) =>{
+        const extention = path.extname(file.originalname);
+        cb(null,`${uuid()}${extention}`)
+      },
+    }),
+    fileFilter : excelFilter,
+    limits : { fileSize: 50 * 1024 * 1024 }, // 50MB máximo
+  })
+  async uploadFile(@UploadedFile() file : Express.Multer.File){
+    if(!file)throw new BadRequestException('No file uploaded');
 
-  @Get()
-  findAll() {
-    return this.filesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.filesService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.filesService.update(+id, updateFileDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.filesService.remove(+id);
+    const result = await this.filesService.proccessFile(file.path)
+    return result
   }
 }
